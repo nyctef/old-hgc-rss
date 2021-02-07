@@ -1,4 +1,4 @@
-from flask import Flask, make_response
+from flask import Flask, make_response, request
 from feedgen.feed import FeedGenerator
 from datetime import datetime, timezone
 from collections import namedtuple
@@ -17,8 +17,7 @@ class Video(namedtuple("Video", "title link description publishDate")):
     @staticmethod
     def from_json(parsed_json):
         publishDate = datetime.strptime(
-            parsed_json["publishedAt"],
-            "%Y-%m-%dT%H:%M:%SZ",
+            parsed_json["publishedAt"], "%Y-%m-%dT%H:%M:%SZ"
         ).replace(tzinfo=timezone.utc)
 
         return Video(
@@ -44,24 +43,30 @@ def hello_world():
     return "Hello, World! See /feed.rss for contents"
 
 
-def filter_videos(all_videos):
+def filter_videos(all_videos, today):
     hgc_2017_start = datetime(2017, 1, 17)
     replay_start = datetime(2021, 2, 7)
     date_diff = replay_start - hgc_2017_start
 
     adjusted_videos = [x.adjust_date(date_diff) for x in all_videos]
-    no_future_videos = [x for x in adjusted_videos if not x.is_in_future()]
+    no_future_videos = [x for x in adjusted_videos if not x.is_in_future(today)]
     return no_future_videos
 
 
 @app.route("/feed.rss")
 def feed():
+    today = request.args.get("today")
+    today = today and datetime.strptime(today, "%Y-%m-%dT%H:%M:%SZ") or datetime.today()
+    today = today.replace(tzinfo=timezone.utc)
+
+    print(f"""today={request.args.get("today")} => {today}""")
+
     fg = FeedGenerator()
     fg.title("Old HGC videos")
     fg.link(href="https://www.youtube.com/c/heroesesports/videos")
     fg.description("Replaying old HGC videos over time")
 
-    for video in filter_videos(video_list):
+    for video in filter_videos(video_list, today):
         fe = fg.add_entry()
         fe.title(video.title)
         fe.link(href=video.link)
