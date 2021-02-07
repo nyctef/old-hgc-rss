@@ -12,6 +12,7 @@ feedgen = "*"
 [dev-packages]
 black = "*"
 rope = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.9"
