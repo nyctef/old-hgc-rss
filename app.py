@@ -1,6 +1,7 @@
 from flask import Flask, make_response
 from feedgen.feed import FeedGenerator
 from datetime import datetime, timezone
+from collections import namedtuple
 import json
 
 app = Flask(__name__)
@@ -12,7 +13,7 @@ class Videos:
         return [Video.from_json(x) for x in parsed_json]
 
 
-class Video:
+class Video(namedtuple("Video", "title link description publishDate")):
     @staticmethod
     def from_json(parsed_json):
         publishDate = datetime.strptime(
@@ -26,12 +27,6 @@ class Video:
             parsed_json["description"],
             publishDate,
         )
-
-    def __init__(self, title, link, description, publishDate):
-        self.title = title
-        self.link = link
-        self.description = description
-        self.publishDate = publishDate
 
     def adjust_date(self, delta):
         return Video(self.title, self.link, self.description, self.publishDate + delta)
