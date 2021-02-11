@@ -86,4 +86,4 @@ def feed():
 if __name__ == "__main__":
     # dev builds run in flask with hot reloading
     # heroku uses gunicorn as specified by the Procfile
-    app.run(host="0.0.0.0", use_reloader=True)
+    app.run(host="0.0.0.0", port=3000, use_reloader=True)
