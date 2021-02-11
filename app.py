@@ -34,8 +34,10 @@ class Video(namedtuple("Video", "title link description publishDate")):
         return self.publishDate > today
 
 
+print("loading video_list.json...")
 with open("video_list.json", encoding="utf-8") as f:
     video_list = Videos.from_json(json.load(f))
+print("...loading complete")
 
 
 @app.route("/")
@@ -55,6 +57,7 @@ def filter_videos(all_videos, today):
 
 @app.route("/feed.rss")
 def feed():
+    print("starting feed request")
     today = request.args.get("today")
     today = today and datetime.strptime(today, "%Y-%m-%dT%H:%M:%SZ") or datetime.today()
     today = today.replace(tzinfo=timezone.utc)
@@ -76,6 +79,7 @@ def feed():
     response = make_response(fg.rss_str(pretty=True))
 
     response.headers.set("Content-Type", "application/rss+xml")
+    print("feed request completed")
     return response
 
 
