@@ -52,7 +52,7 @@ def filter_videos(all_videos, today):
 
     adjusted_videos = [x.adjust_date(date_diff) for x in all_videos]
     no_future_videos = [x for x in adjusted_videos if not x.is_in_future(today)]
-    return no_future_videos
+    return no_future_videos[0:20]
 
 
 @app.route("/feed.rss")
